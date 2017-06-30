@@ -39,7 +39,6 @@ namespace Treehouse.FitnessFrog.Controllers
             return View(entries);
         }
 
-        
         public ActionResult Add()
         {
             var entry = new Entry()
@@ -47,8 +46,8 @@ namespace Treehouse.FitnessFrog.Controllers
                 Date = DateTime.Today,
             };
 
-            ViewBag.ActivitiesSelectListItems = new SelectList(
-                Data.Data.Activities, "Id", "Name");
+            //Extracted the validation code into its own method
+            SetupActivitiesSelectListItems();
 
             return View(entry);
         }
@@ -56,12 +55,9 @@ namespace Treehouse.FitnessFrog.Controllers
         [HttpPost]
         public ActionResult Add(Entry entry)
 
-        {   // if 'Duration' field is null or less than 0
-
-            if(ModelState.IsValidField("Duration") && entry.Duration <= 0)
-            {
-                ModelState.AddModelError("Duration", "The Duration field value must be greater than '0'.");
-            }
+        {
+            //Extracted the validation code into its own method
+            ValidateEntry(entry);
 
             if (ModelState.IsValid)
             {
@@ -70,11 +66,11 @@ namespace Treehouse.FitnessFrog.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ActivitiesSelectListItems = new SelectList(
-                Data.Data.Activities, "Id", "Name");
+            SetupActivitiesSelectListItems();
 
             return View(entry);
         }
+
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -82,7 +78,41 @@ namespace Treehouse.FitnessFrog.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            return View();
+            // TODO Get the requested entry from the repository
+            Entry entry = _entriesRepository.GetEntry((int)id);
+
+            // TODO Return a status of "Not Found" if the entry wasn't found
+            if (entry == null)
+            {
+                return HttpNotFound();
+            }
+
+            SetupActivitiesSelectListItems();
+
+            // TODO Pass the entry into View
+            return View(entry);
+        }
+
+        [HttpPost]
+        public ActionResult Edit(Entry entry)
+        {
+            // TODO validate the entry
+            ValidateEntry(entry);
+
+            // TODO if the entry is valid
+            
+            if (ModelState.IsValid)
+            {
+                // 1. Use the repository to update the entry
+                _entriesRepository.UpdateEntry(entry);
+
+                // 2. Redirect the user to the 'Entries' list page
+                return RedirectToAction("Index");
+            }
+
+            SetupActivitiesSelectListItems();
+
+            return View(entry);
         }
 
         public ActionResult Delete(int? id)
@@ -94,5 +124,23 @@ namespace Treehouse.FitnessFrog.Controllers
 
             return View();
         }
+
+        private void ValidateEntry(Entry entry)
+        {
+            // validate to check if 'Duration' field is null or less than 0
+
+            if (ModelState.IsValidField("Duration") && entry.Duration <= 0)
+            {
+                ModelState.AddModelError("Duration", "The Duration field value must be greater than '0'.");
+            }
+        }
+
+            //TODO populate the activities select list items ViewBag property
+        private void SetupActivitiesSelectListItems()
+        {
+            ViewBag.ActivitiesSelectListItems = new SelectList(
+                Data.Data.Activities, "Id", "Name");
+        }
+
     }
 }
