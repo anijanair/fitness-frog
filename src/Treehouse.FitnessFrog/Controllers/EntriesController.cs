@@ -96,10 +96,10 @@ namespace Treehouse.FitnessFrog.Controllers
         [HttpPost]
         public ActionResult Edit(Entry entry)
         {
-            // TODO validate the entry
+            // validate the entry
             ValidateEntry(entry);
 
-            // TODO if the entry is valid
+            //  if the entry is valid
             
             if (ModelState.IsValid)
             {
@@ -121,8 +121,27 @@ namespace Treehouse.FitnessFrog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+            // Retrieve entry for the provided id parameter value
+            Entry entry = _entriesRepository.GetEntry((int)id);
+             // Return "Not Found" if an entry was not found
+            if (entry == null)
+            {
+                return HttpNotFound();
+            }
+             // Pass the entry into view
 
-            return View();
+            return View(entry);
+        }
+
+        [HttpPost]
+        public ActionResult Delete(int id)
+        {
+            // Delete the entry
+            _entriesRepository.DeleteEntry(id);
+
+            // Redirect to "Entries" list page
+            return RedirectToAction("Index");
+
         }
 
         private void ValidateEntry(Entry entry)
