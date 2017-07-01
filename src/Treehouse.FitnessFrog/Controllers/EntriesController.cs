@@ -63,6 +63,8 @@ namespace Treehouse.FitnessFrog.Controllers
             {
                 _entriesRepository.AddEntry(entry);
 
+                TempData["Message"] = "Your entry was successfully added!";
+
                 return RedirectToAction("Index");
             }
 
@@ -70,6 +72,7 @@ namespace Treehouse.FitnessFrog.Controllers
 
             return View(entry);
         }
+
 
         public ActionResult Edit(int? id)
         {
@@ -103,10 +106,12 @@ namespace Treehouse.FitnessFrog.Controllers
             
             if (ModelState.IsValid)
             {
-                // 1. Use the repository to update the entry
+                // Use the repository to update the entry
                 _entriesRepository.UpdateEntry(entry);
 
-                // 2. Redirect the user to the 'Entries' list page
+                TempData["Message"] = "Your entry was succesfully updated!";
+
+                // Redirect the user to the 'Entries' list page
                 return RedirectToAction("Index");
             }
 
@@ -138,6 +143,8 @@ namespace Treehouse.FitnessFrog.Controllers
         {
             // Delete the entry
             _entriesRepository.DeleteEntry(id);
+
+            TempData["Message"] = "Your entry was successfully deleted!";
 
             // Redirect to "Entries" list page
             return RedirectToAction("Index");
